@@ -1,51 +1,41 @@
-const http = require('http');
-const fs = require('node:fs/promises');
+
+require('dotenv').config();
+const path = require("node:path");
+const express = require("express");
+const app = express();
+const newMessageRouter = require("./routes/newMessageRouter");
+
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 
 
-const readFile = async (html) => {
-  try {
-    const data = await fs.readFile(html, { encoding: 'utf8'});
-    return data;
-  } catch (err) {
-    console.error(err);
+
+const messages = [
+  {
+    text: "Hi there!",
+    user: "Amando",
+    added: new Date()
+  },
+  {
+    text: "Hello World!",
+    user: "Charles",
+    added: new Date()
   }
-}
+];
 
-const server = http.createServer();
 
-// To test/debug, set breakpoint on line 21, open js debug terminal and enter 'node index.js', then actually go to localhost:8000 in browser to send client request. When request is sent, debugger will stop at line 21
-// use req.method to get http request method (get, post, etc)
-server.on('request', (req, res) => {
+app.use("/new", newMessageRouter);
 
-  const url = new URL(`http://localhost:8000${req.url}`);
-  let statusCode = 200;
-  let file;
-
-  switch (url.pathname) {
-    case '/':
-      file = './html/index.html';
-      break;
-    case '/about':
-      file = './html/about.html';
-      break;
-    case '/contact':
-      file = './html/contact.html';
-      break;
-    default:
-      file = './html/404.html';
-      statusCode = 404;
-  }
-
-  const html = readFile(file);
-  
-  html
-    .then((data) => {
-      res.writeHead(statusCode, {"Content-type": 'text/html'});
-      res.end(data);
-    })
-    .catch((error) => console.log(error));
-  
+app.get('/', (req, res) => {
+  res.render("index", { title: "Mini Messageboard", messages: messages});
 });
 
 
-server.listen(8000);
+
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(err.statusCode || 500).render("error");
+  });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT);
