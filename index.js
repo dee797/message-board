@@ -9,7 +9,6 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 
-
 const messages = [
   {
     text: "Hi there!",
@@ -22,19 +21,20 @@ const messages = [
     added: new Date()
   }
 ];
+app.locals.messages = messages;
 
+
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/new", newMessageRouter);
 
 app.get('/', (req, res) => {
-  res.render("index", { title: "Mini Messageboard", messages: messages});
+  res.render("index", { title: "Mini Messageboard", messages: app.locals.messages});
 });
 
-
-
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(err.statusCode || 500).render("error");
+app.use((req, res, next) => {
+    res.status(404);
+    res.render("error");
   });
 
 const PORT = process.env.PORT || 3000;
