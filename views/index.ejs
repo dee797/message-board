@@ -8,7 +8,10 @@
 <body>
     <ul>
     <% messages.map((message) => { %>
-        <li><%= message.user %>: <%= message.text%> on <%= message.added.toDateString() %></li>
+        <li>
+            <%= message.user %>: <%= message.text%> on <%= message.added.toDateString() %>
+            <a href="<%= message.id%>"><button type="button">Open Message</button></a>
+        </li>
     <% }) %>
     </ul>
     <hr />
